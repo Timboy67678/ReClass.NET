@@ -56,9 +56,9 @@ namespace ReClassNET.Forms
 			}
 		}
 
-		private void UpdateWindowTitle(string extra = null)
+		public void UpdateWindowTitle(string extra = null)
 		{
-			var title = $"{(Program.Settings.RandomizeWindowTitle ? Utils.RandomString(Program.GlobalRandom.Next(15, 20)) : Constants.ApplicationName)} ({Constants.Platform})";
+			var title = $"{(Program.Settings.RandomizeWindowTitle ? Utils.RandomString(Program.GlobalRandom.Next(15, 40)) : Constants.ApplicationName)} ({Constants.Platform})";
 			if (!string.IsNullOrEmpty(extra))
 			{
 				title += $" - {extra}";

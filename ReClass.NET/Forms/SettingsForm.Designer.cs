@@ -312,6 +312,7 @@
 			this.randomizeWindowTitleCheckBox.TabIndex = 5;
 			this.randomizeWindowTitleCheckBox.Text = "Randomize window title";
 			this.randomizeWindowTitleCheckBox.UseVisualStyleBackColor = true;
+			this.randomizeWindowTitleCheckBox.CheckedChanged += new System.EventHandler(this.randomizeWindowTitleCheckBox_CheckedChanged);
 			// 
 			// runAsAdminCheckBox
 			// 

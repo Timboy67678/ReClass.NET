@@ -153,5 +153,11 @@ namespace ReClassNET.Forms
 			SetBinding(utf16TextTypeTextBox, nameof(TextBox.Text), typeMapping, nameof(CppTypeMapping.TypeUtf16Text));
 			SetBinding(functionPtrTypeTextBox, nameof(TextBox.Text), typeMapping, nameof(CppTypeMapping.TypeFunctionPtr));
 		}
+
+		private void randomizeWindowTitleCheckBox_CheckedChanged(object sender, EventArgs e)
+		{
+			settings.RandomizeWindowTitle = randomizeWindowTitleCheckBox.Checked; //only here to update before the UpdateWindowTitle
+			Program.MainForm.UpdateWindowTitle();
+		}
 	}
 }
