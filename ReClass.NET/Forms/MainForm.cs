@@ -101,6 +101,12 @@ namespace ReClassNET.Forms
 
 			pluginManager.LoadAllPlugins(Path.Combine(Application.StartupPath, Constants.PluginsFolder), Program.Logger);
 
+			if (!Program.CoreFunctions.SetActiveFunctionsProvider(Program.Settings.LastCoreProvider))
+			{
+				MessageBox.Show($"Failed to load provider \"{Program.Settings.LastCoreProvider}\", reverting to NativeCore", Constants.ApplicationName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				Program.Settings.LastCoreProvider = "Default";
+			}
+
 			toolStrip.Items.AddRange(NodeTypesBuilder.CreateToolStripButtons(ReplaceSelectedNodesWithType).ToArray());
 			changeTypeToolStripMenuItem.DropDownItems.AddRange(NodeTypesBuilder.CreateToolStripMenuItems(ReplaceSelectedNodesWithType, false).ToArray());
 

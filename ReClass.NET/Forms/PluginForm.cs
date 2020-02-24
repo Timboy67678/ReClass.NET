@@ -78,6 +78,8 @@ namespace ReClassNET.Forms
 				return;
 			}
 
+			Program.Settings.LastCoreProvider = provider;
+
 			Program.CoreFunctions.SetActiveFunctionsProvider(provider);
 		}
 

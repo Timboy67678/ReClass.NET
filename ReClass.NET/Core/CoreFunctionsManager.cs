@@ -16,14 +16,12 @@ namespace ReClassNET.Core
 
 		private readonly InternalCoreFunctions internalCoreFunctions;
 
-		private ICoreProcessFunctions currentFunctions;
-
 		public IEnumerable<string> FunctionProviders => functionsRegistry.Keys;
 
-		public ICoreProcessFunctions CurrentFunctions => currentFunctions;
+		public ICoreProcessFunctions CurrentFunctions { get; private set; }
 
 		public string CurrentFunctionsProvider => functionsRegistry
-			.Where(kv => kv.Value == currentFunctions)
+			.Where(kv => kv.Value == CurrentFunctions)
 			.Select(kv => kv.Key)
 			.FirstOrDefault();
 
@@ -33,7 +31,7 @@ namespace ReClassNET.Core
 
 			RegisterFunctions("Default", internalCoreFunctions);
 
-			currentFunctions = internalCoreFunctions;
+			CurrentFunctions = internalCoreFunctions;
 		}
 
 		#region IDisposable Support
@@ -53,14 +51,13 @@ namespace ReClassNET.Core
 			functionsRegistry.Add(provider, functions);
 		}
 
-		public void SetActiveFunctionsProvider(string provider)
+		public bool SetActiveFunctionsProvider(string provider)
 		{
 			if (!functionsRegistry.TryGetValue(provider, out var functions))
-			{
-				throw new ArgumentException();
-			}
+				return false;
 
-			currentFunctions = functions;
+			CurrentFunctions = functions;
+			return true;
 		}
 
 		#region Plugin Functions
@@ -72,7 +69,7 @@ namespace ReClassNET.Core
 				callbackProcess(new ProcessInfo(data.Id, data.Name, data.Path));
 			};
 
-			currentFunctions.EnumerateProcesses(c);
+			CurrentFunctions.EnumerateProcesses(c);
 		}
 
 		public IList<ProcessInfo> EnumerateProcesses()
@@ -112,7 +109,7 @@ namespace ReClassNET.Core
 				});
 			};
 
-			currentFunctions.EnumerateRemoteSectionsAndModules(process, c1, c2);
+			CurrentFunctions.EnumerateRemoteSectionsAndModules(process, c1, c2);
 		}
 
 		public void EnumerateRemoteSectionsAndModules(IntPtr process, out List<Section> sections, out List<Module> modules)
@@ -125,57 +122,57 @@ namespace ReClassNET.Core
 
 		public IntPtr OpenRemoteProcess(IntPtr pid, ProcessAccess desiredAccess)
 		{
-			return currentFunctions.OpenRemoteProcess(pid, desiredAccess);
+			return CurrentFunctions.OpenRemoteProcess(pid, desiredAccess);
 		}
 
 		public bool IsProcessValid(IntPtr process)
 		{
-			return currentFunctions.IsProcessValid(process);
+			return CurrentFunctions.IsProcessValid(process);
 		}
 
 		public void CloseRemoteProcess(IntPtr process)
 		{
-			currentFunctions.CloseRemoteProcess(process);
+			CurrentFunctions.CloseRemoteProcess(process);
 		}
 
 		public bool ReadRemoteMemory(IntPtr process, IntPtr address, ref byte[] buffer, int offset, int size)
 		{
-			return currentFunctions.ReadRemoteMemory(process, address, ref buffer, offset, size);
+			return CurrentFunctions.ReadRemoteMemory(process, address, ref buffer, offset, size);
 		}
 
 		public bool WriteRemoteMemory(IntPtr process, IntPtr address, ref byte[] buffer, int offset, int size)
 		{
-			return currentFunctions.WriteRemoteMemory(process, address, ref buffer, offset, size);
+			return CurrentFunctions.WriteRemoteMemory(process, address, ref buffer, offset, size);
 		}
 
 		public void ControlRemoteProcess(IntPtr process, ControlRemoteProcessAction action)
 		{
-			currentFunctions.ControlRemoteProcess(process, action);
+			CurrentFunctions.ControlRemoteProcess(process, action);
 		}
 
 		public bool AttachDebuggerToProcess(IntPtr id)
 		{
-			return currentFunctions.AttachDebuggerToProcess(id);
+			return CurrentFunctions.AttachDebuggerToProcess(id);
 		}
 
 		public void DetachDebuggerFromProcess(IntPtr id)
 		{
-			currentFunctions.DetachDebuggerFromProcess(id);
+			CurrentFunctions.DetachDebuggerFromProcess(id);
 		}
 
 		public void HandleDebugEvent(ref DebugEvent evt)
 		{
-			currentFunctions.HandleDebugEvent(ref evt);
+			CurrentFunctions.HandleDebugEvent(ref evt);
 		}
 
 		public bool AwaitDebugEvent(ref DebugEvent evt, int timeoutInMilliseconds)
 		{
-			return currentFunctions.AwaitDebugEvent(ref evt, timeoutInMilliseconds);
+			return CurrentFunctions.AwaitDebugEvent(ref evt, timeoutInMilliseconds);
 		}
 
 		public bool SetHardwareBreakpoint(IntPtr id, IntPtr address, HardwareBreakpointRegister register, HardwareBreakpointTrigger trigger, HardwareBreakpointSize size, bool set)
 		{
-			return currentFunctions.SetHardwareBreakpoint(id, address, register, trigger, size, set);
+			return CurrentFunctions.SetHardwareBreakpoint(id, address, register, trigger, size, set);
 		}
 
 		#endregion

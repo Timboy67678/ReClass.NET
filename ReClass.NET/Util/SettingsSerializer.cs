@@ -34,6 +34,7 @@ namespace ReClassNET.Util
 					if (general != null)
 					{
 						XElementSerializer.TryRead(general, nameof(settings.LastProcess), e => settings.LastProcess = XElementSerializer.ToString(e));
+						XElementSerializer.TryRead(general, nameof(settings.LastCoreProvider), e => settings.LastCoreProvider = XElementSerializer.ToString(e));
 						XElementSerializer.TryRead(general, nameof(settings.StayOnTop), e => settings.StayOnTop = XElementSerializer.ToBool(e));
 						XElementSerializer.TryRead(general, nameof(settings.RunAsAdmin), e => settings.RunAsAdmin = XElementSerializer.ToBool(e));
 						XElementSerializer.TryRead(general, nameof(settings.RandomizeWindowTitle), e => settings.RandomizeWindowTitle = XElementSerializer.ToBool(e));
@@ -107,6 +108,7 @@ namespace ReClassNET.Util
 						new XElement(
 							XmlGeneralElement,
 							XElementSerializer.ToXml(nameof(settings.LastProcess), settings.LastProcess),
+							XElementSerializer.ToXml(nameof(settings.LastCoreProvider), settings.LastCoreProvider),
 							XElementSerializer.ToXml(nameof(settings.StayOnTop), settings.StayOnTop),
 							XElementSerializer.ToXml(nameof(settings.RunAsAdmin), settings.RunAsAdmin),
 							XElementSerializer.ToXml(nameof(settings.RandomizeWindowTitle), settings.RandomizeWindowTitle)

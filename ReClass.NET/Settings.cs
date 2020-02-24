@@ -10,6 +10,8 @@ namespace ReClassNET
 
 		public string LastProcess { get; set; } = string.Empty;
 
+		public string LastCoreProvider { get; set; } = "Default";
+
 		public bool StayOnTop { get; set; } = false;
 
 		public bool RunAsAdmin { get; set; } = false;
