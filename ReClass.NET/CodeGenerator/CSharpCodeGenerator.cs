@@ -34,6 +34,8 @@ namespace ReClassNET.CodeGenerator
 			[typeof(PointerNode)] = "IntPtr",
 			[typeof(VirtualMethodTableNode)] = "IntPtr",
 
+			[typeof(Utf8TextNode)] = "string",
+
 			[typeof(Vector2Node)] = "Vector2",
 			[typeof(Vector3Node)] = "Vector3",
 			[typeof(Vector4Node)] = "Vector4"
@@ -172,12 +174,17 @@ namespace ReClassNET.CodeGenerator
 
 			var nodes = @class.Nodes
 				.WhereNot(n => n is FunctionNode || n is BaseHexNode);
+
 			foreach (var node in nodes)
 			{
 				var type = GetTypeDefinition(node);
 				if (type != null)
 				{
-					writer.Write($"[FieldOffset(0x{node.Offset:X})] public readonly {type} {node.Name};");
+					if (type == "string")
+						writer.Write($"[FieldOffset(0x{node.Offset:X}), MarshalAs(UnmanagedType.ByValTStr, SizeConst = {(node as Utf8TextNode)?.Length})] public readonly string {node.Name};");
+					else
+						writer.Write($"[FieldOffset(0x{node.Offset:X})] public readonly {type} {node.Name};");
+
 					if (!string.IsNullOrEmpty(node.Comment))
 					{
 						writer.Write(" ");

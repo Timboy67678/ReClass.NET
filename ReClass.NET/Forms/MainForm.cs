@@ -84,6 +84,7 @@ namespace ReClassNET.Forms
 				UpdateWindowTitle(text);
 
 			};
+
 			Program.RemoteProcess.ProcessClosed += sender =>
 			{
 				UpdateWindowTitle();

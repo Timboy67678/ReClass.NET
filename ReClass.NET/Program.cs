@@ -109,7 +109,7 @@ namespace ReClassNET
 				ShowToolBar = true,
 				Symbol = ExceptionMessageBoxSymbol.Error
 			};
-			msg.Show(null);
+			msg.Show(Program.MainForm);
 		}
 	}
 }

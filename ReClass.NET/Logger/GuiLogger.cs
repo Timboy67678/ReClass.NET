@@ -15,13 +15,17 @@ namespace ReClassNET.Logger
 		public GuiLogger()
 		{
 			form = new LogForm();
+			
 			form.FormClosing += delegate (object sender, FormClosingEventArgs e)
 			{
-				form.Clear();
+				if (e.CloseReason != CloseReason.FormOwnerClosing)
+				{
+					form.Clear();
 
-				form.Hide();
+					form.Hide();
 
-				e.Cancel = true;
+					e.Cancel = true;
+				}
 			};
 
 			NewLogEntry += OnNewLogEntry;
@@ -45,7 +49,7 @@ namespace ReClassNET.Logger
 		{
 			if (!form.Visible)
 			{
-				form.Show();
+				form.Show(Program.MainForm);
 
 				form.BringToFront();
 			}

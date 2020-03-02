@@ -74,9 +74,7 @@ namespace ReClassNET.Forms
 		private void functionsProvidersComboBox_SelectionChangeCommitted(object sender, EventArgs e)
 		{
 			if (!(functionsProvidersComboBox.SelectedItem is string provider))
-			{
 				return;
-			}
 
 			Program.Settings.LastCoreProvider = provider;
 

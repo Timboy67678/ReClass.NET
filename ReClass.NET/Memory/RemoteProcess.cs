@@ -21,11 +21,6 @@ namespace ReClassNET.Memory
 	public class RemoteProcess : IDisposable, IRemoteMemoryReader, IRemoteMemoryWriter, IProcessReader
 	{
 		private readonly object processSync = new object();
-
-		private readonly CoreFunctionsManager coreFunctions;
-
-		private readonly RemoteDebugger debugger;
-
 		private readonly Dictionary<string, Func<RemoteProcess, IntPtr>> formulaCache = new Dictionary<string, Func<RemoteProcess, IntPtr>>();
 
 		private readonly Dictionary<IntPtr, string> rttiCache = new Dictionary<IntPtr, string>();
@@ -34,9 +29,6 @@ namespace ReClassNET.Memory
 
 		private readonly List<Section> sections = new List<Section>();
 
-		private readonly SymbolStore symbols = new SymbolStore();
-
-		private ProcessInfo process;
 		private IntPtr handle;
 
 		/// <summary>Event which gets invoked when a process was opened.</summary>
@@ -48,13 +40,13 @@ namespace ReClassNET.Memory
 		/// <summary>Event which gets invoked after a process was closed.</summary>
 		public event RemoteProcessEvent ProcessClosed;
 
-		public CoreFunctionsManager CoreFunctions => coreFunctions;
+		public CoreFunctionsManager CoreFunctions { get; }
 
-		public RemoteDebugger Debugger => debugger;
+		public RemoteDebugger Debugger { get; }
 
-		public ProcessInfo UnderlayingProcess => process;
+		public ProcessInfo UnderlayingProcess { get; private set; }
 
-		public SymbolStore Symbols => symbols;
+		public SymbolStore Symbols { get; } = new SymbolStore();
 
 		/// <summary>Gets a copy of the current modules list. This list may change if the remote process (un)loads a module.</summary>
 		public IEnumerable<Module> Modules
@@ -87,15 +79,15 @@ namespace ReClassNET.Memory
 		/// <summary>A map of named addresses.</summary>
 		public Dictionary<IntPtr, string> NamedAddresses { get; } = new Dictionary<IntPtr, string>();
 
-		public bool IsValid => process != null && coreFunctions.IsProcessValid(handle);
+		public bool IsValid => UnderlayingProcess != null && CoreFunctions.IsProcessValid(handle);
 
 		public RemoteProcess(CoreFunctionsManager coreFunctions)
 		{
 			Contract.Requires(coreFunctions != null);
 
-			this.coreFunctions = coreFunctions;
+			this.CoreFunctions = coreFunctions;
 
-			debugger = new RemoteDebugger(this);
+			Debugger = new RemoteDebugger(this);
 		}
 
 		public void Dispose()
@@ -109,7 +101,7 @@ namespace ReClassNET.Memory
 		{
 			Contract.Requires(info != null);
 
-			if (process != info)
+			if (UnderlayingProcess != info)
 			{
 				lock (processSync)
 				{
@@ -117,9 +109,9 @@ namespace ReClassNET.Memory
 
 					rttiCache.Clear();
 
-					process = info;
+					UnderlayingProcess = info;
 
-					handle = coreFunctions.OpenRemoteProcess(process.Id, ProcessAccess.Full);
+					handle = CoreFunctions.OpenRemoteProcess(UnderlayingProcess.Id, ProcessAccess.Full);
 				}
 
 				ProcessAttached?.Invoke(this);
@@ -129,19 +121,19 @@ namespace ReClassNET.Memory
 		/// <summary>Closes the underlaying process. If the debugger is attached, it will automaticly detached.</summary>
 		public void Close()
 		{
-			if (process != null)
+			if (UnderlayingProcess != null)
 			{
 				ProcessClosing?.Invoke(this);
 
 				lock (processSync)
 				{
-					debugger.Terminate();
+					Debugger.Terminate();
 
-					coreFunctions.CloseRemoteProcess(handle);
+					CoreFunctions.CloseRemoteProcess(handle);
 
 					handle = IntPtr.Zero;
 
-					process = null;
+					UnderlayingProcess = null;
 				}
 
 				ProcessClosed?.Invoke(this);
@@ -176,7 +168,7 @@ namespace ReClassNET.Memory
 				return false;
 			}
 
-			return coreFunctions.ReadRemoteMemory(handle, address, ref buffer, offset, length);
+			return CoreFunctions.ReadRemoteMemory(handle, address, ref buffer, offset, length);
 		}
 
 		public byte[] ReadRemoteMemory(IntPtr address, int size)
@@ -494,7 +486,7 @@ namespace ReClassNET.Memory
 				return false;
 			}
 
-			return coreFunctions.WriteRemoteMemory(handle, address, ref data, 0, data.Length);
+			return CoreFunctions.WriteRemoteMemory(handle, address, ref data, 0, data.Length);
 		}
 
 		public bool WriteRemoteMemory<T>(IntPtr address, T value) where T : struct
@@ -581,7 +573,7 @@ namespace ReClassNET.Memory
 			sections = new List<Section>();
 			modules = new List<Module>();
 
-			coreFunctions.EnumerateRemoteSectionsAndModules(handle, sections.Add, modules.Add);
+			CoreFunctions.EnumerateRemoteSectionsAndModules(handle, sections.Add, modules.Add);
 
 			return true;
 		}
@@ -712,7 +704,7 @@ namespace ReClassNET.Memory
 				return;
 			}
 
-			coreFunctions.ControlRemoteProcess(handle, action);
+			CoreFunctions.ControlRemoteProcess(handle, action);
 		}
 	}
 }
